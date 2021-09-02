@@ -123,6 +123,7 @@ namespace GameStateManagement
             spriteBatch = new SpriteBatch(GraphicsDevice);
             font = content.Load<SpriteFont>(@"Graphics\menufont");
             blankTexture = content.Load<Texture2D>(@"Graphics\blank");
+
            // titleMusic = content.Load<SoundEffect>(@"Music\DarkRevileTitle");
            // titleMusictInstance = titleMusic.CreateInstance();
            
