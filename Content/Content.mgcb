@@ -1,0 +1,144 @@
+
+#----------------------------- Global Properties ----------------------------#
+
+/outputDir:bin/$(Platform)
+/intermediateDir:obj/$(Platform)
+/platform:DesktopGL
+/config:
+/profile:Reach
+/compress:False
+
+#-------------------------------- References --------------------------------#
+
+
+#---------------------------------- Content ---------------------------------#
+
+#begin Graphics/arialblack50.xnb
+/copy:Graphics/arialblack50.xnb
+
+#begin Graphics/asteroid01.xnb
+/copy:Graphics/asteroid01.xnb
+
+#begin Graphics/Backgrounds/ParallaxStars.xnb
+/copy:Graphics/Backgrounds/ParallaxStars.xnb
+
+#begin Graphics/Backgrounds/PrimaryStar.xnb
+/copy:Graphics/Backgrounds/PrimaryStar.xnb
+
+#begin Graphics/Backgrounds/saturn1.xnb
+/copy:Graphics/Backgrounds/saturn1.xnb
+
+#begin Graphics/Backgrounds/star1.xnb
+/copy:Graphics/Backgrounds/star1.xnb
+
+#begin Graphics/Backgrounds/star2.xnb
+/copy:Graphics/Backgrounds/star2.xnb
+
+#begin Graphics/Backgrounds/star3.xnb
+/copy:Graphics/Backgrounds/star3.xnb
+
+#begin Graphics/Backgrounds/star4.xnb
+/copy:Graphics/Backgrounds/star4.xnb
+
+#begin Graphics/Backgrounds/star5.xnb
+/copy:Graphics/Backgrounds/star5.xnb
+
+#begin Graphics/Backgrounds/star6.xnb
+/copy:Graphics/Backgrounds/star6.xnb
+
+#begin Graphics/blank.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Graphics/blank.png
+
+#begin Graphics/bold_silver.xnb
+/copy:Graphics/bold_silver.xnb
+
+#begin Graphics/bolt_bronze.xnb
+/copy:Graphics/bolt_bronze.xnb
+
+#begin Graphics/bolt_gold.xnb
+/copy:Graphics/bolt_gold.xnb
+
+#begin Graphics/explosion.xnb
+/copy:Graphics/explosion.xnb
+
+#begin Graphics/firehair.xnb
+/copy:Graphics/firehair.xnb
+
+#begin Graphics/gameFont.xnb
+/copy:Graphics/gameFont.xnb
+
+#begin Graphics/gradientgreen.xnb
+/copy:Graphics/gradientgreen.xnb
+
+#begin Graphics/lasergreen.xnb
+/copy:Graphics/lasergreen.xnb
+
+#begin Graphics/menufont.xnb
+/copy:Graphics/menufont.xnb
+
+#begin Graphics/mineAnimation.xnb
+/copy:Graphics/mineAnimation.xnb
+
+#begin Graphics/mineGreenAnimation.xnb
+/copy:Graphics/mineGreenAnimation.xnb
+
+#begin Graphics/playerShip1_greenrotate5066.xnb
+/copy:Graphics/playerShip1_greenrotate5066.xnb
+
+#begin Graphics/shield_bronze.xnb
+/copy:Graphics/shield_bronze.xnb
+
+#begin Graphics/shield_gold.xnb
+/copy:Graphics/shield_gold.xnb
+
+#begin Graphics/shield_silver.xnb
+/copy:Graphics/shield_silver.xnb
+
+#begin Graphics/star_bronze.xnb
+/copy:Graphics/star_bronze.xnb
+
+#begin Graphics/star_gold.xnb
+/copy:Graphics/star_gold.xnb
+
+#begin Graphics/star_silver.xnb
+/copy:Graphics/star_silver.xnb
+
+#begin Graphics/TextParticle.xnb
+/copy:Graphics/TextParticle.xnb
+
+#begin Sounds/explosion.xnb
+/copy:Sounds/explosion.xnb
+
+#begin Sounds/gameMusic.xnb
+/copy:Sounds/gameMusic.xnb
+
+#begin Sounds/laser1.xnb
+/copy:Sounds/laser1.xnb
+
+#begin Sounds/laserFire.xnb
+/copy:Sounds/laserFire.xnb
+
+#begin Sounds/PickedPowerup2.xnb
+/copy:Sounds/PickedPowerup2.xnb
+
+#begin Sounds/title.xnb
+/copy:Sounds/title.xnb
+
+#begin Sounds/titlemusic.wma
+/importer:WmaImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Sounds/titlemusic.wma
+
+#begin Sounds/titlemusic.xnb
+/copy:Sounds/titlemusic.xnb
+
