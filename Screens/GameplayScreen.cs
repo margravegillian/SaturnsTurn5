@@ -307,7 +307,7 @@ namespace GameStateManagement
                 if (AudioManager.IsInitialized.Equals(true))
                 { }
                     //TODO change game music sucks
-                   // AudioManager.PlaySound("gamemusic");
+                    AudioManager.PlaySound("gamemusic");
             }
             else
             {
