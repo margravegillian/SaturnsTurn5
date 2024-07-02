@@ -1,14 +1,9 @@
 ﻿#region Using Statements
-using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 //using Microsoft.Xna.Framework.Storage;
 //using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Audio;
 using GameStateManagement;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using SaturnsTurn5.Utility;
 #endregion
 
@@ -20,12 +15,12 @@ namespace SaturnsTurn5
     public class SaturnsTurnGame : Game
     {
         #region Fields
-        
+
         GraphicsDeviceManager graphics;
         ScreenManager screenManager;
-       // GraphicsAdapter adapter;
-       // float playerMoveSpeed;
-       // Player player;
+        // GraphicsAdapter adapter;
+        // float playerMoveSpeed;
+        // Player player;
 
         //SpriteBatch spriteBatch;
 
@@ -36,27 +31,28 @@ namespace SaturnsTurn5
             //can add more assets hre if we want
             "Graphics\\gradientgreen",
         };
-        
+
         #endregion
 
         #region Initialization
-      
+
         public SaturnsTurnGame()
-            
+
         {
             Content.RootDirectory = "Content";
 
             graphics = new GraphicsDeviceManager(this);
-           // graphics.PreferredBackBufferWidth = 1280;
+            // graphics.PreferredBackBufferWidth = 1280;
             //graphics.PreferredBackBufferHeight = 720;
             graphics.PreferredBackBufferWidth = 1280;
             graphics.PreferredBackBufferHeight = 720;
             graphics.IsFullScreen = false;
-            
-            
+
+
+
             Window.Title = "Saturn's Turn";
 
-            
+
 
 
             // Create the screen manager component.
@@ -69,7 +65,7 @@ namespace SaturnsTurn5
             screenManager.AddScreen(new BackgroundScreen(), null);
             screenManager.AddScreen(new MainMenuScreen(), null);
 
-            
+
         }
 
         /// <summary>
@@ -85,14 +81,14 @@ namespace SaturnsTurn5
             //graphics.PreferredBackBufferHeight = 720;
             //graphics.PreferredBackBufferWidth = 1024;
             //graphics.PreferredBackBufferHeight = 768;
-           // graphics.IsFullScreen = false;
-           // graphics.ApplyChanges();
+            // graphics.IsFullScreen = false;
+            // graphics.ApplyChanges();
 
-            
+
 
             base.Initialize();
         }
-        
+
 
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
@@ -131,22 +127,22 @@ namespace SaturnsTurn5
         #endregion
         protected override void Update(GameTime gameTime)
         {
-           // if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            // if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             //    Exit();
 
             // TODO: Add your update logic here
 
-           /* 
-            if (OptionsMenuScreen.setFullscreen == true)
-            {
-                graphics.ToggleFullScreen();
-                graphics.ApplyChanges();
+            /* 
+             if (OptionsMenuScreen.setFullscreen == true)
+             {
+                 graphics.ToggleFullScreen();
+                 graphics.ApplyChanges();
 
-            }
-            */
+             }
+             */
 
             base.Update(gameTime);
-            
+
         }
 
         /// <summary>
@@ -162,8 +158,8 @@ namespace SaturnsTurn5
             base.Draw(gameTime);
         }
 
-        
+
     }
-  
-   
+
+
 }
