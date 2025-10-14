@@ -114,6 +114,19 @@ namespace GameStateManagement
 
         float pauseAlpha;
 
+        // HUD Animation fields
+        float hudPulseTimer;
+        float healthBarPulse;
+        float shieldBarPulse;
+        float livesGlowIntensity;
+        Texture2D pixelTexture; // Reusable 1x1 white pixel texture
+        const float HUD_PULSE_SPEED = 3f;
+        const int HUD_TOP_MARGIN = 15;
+        const int HUD_LEFT_MARGIN = 20;
+        const int HUD_BAR_WIDTH = 160; // Reduced by 20% from 200
+        const int HUD_BAR_HEIGHT = 15; // Reduced by ~20% from 18
+        const int HUD_BAR_TOTAL_HEIGHT = 52; // Adjusted for smaller components
+
         #endregion
 
         #region Initialization
@@ -260,6 +273,11 @@ namespace GameStateManagement
 
             // player.Initialize(content.Load<Texture2D>(@"Graphics\player"), playerPosition3);
             playerMoveSpeed = 8.0f;
+            
+            // Create reusable pixel texture for HUD drawing
+            pixelTexture = new Texture2D(ScreenManager.GraphicsDevice, 1, 1);
+            pixelTexture.SetData(new[] { Color.White });
+            
             Thread.Sleep(1000);
 
 
@@ -328,7 +346,11 @@ namespace GameStateManagement
                 previousMouseState = currentMouseState;
                 currentMouseState = Mouse.GetState();
 
-
+                // Update HUD animations
+                hudPulseTimer += (float)gameTime.ElapsedGameTime.TotalSeconds * HUD_PULSE_SPEED;
+                healthBarPulse = (float)Math.Sin(hudPulseTimer) * 0.5f + 0.5f;
+                shieldBarPulse = (float)Math.Sin(hudPulseTimer * 1.5f) * 0.5f + 0.5f;
+                livesGlowIntensity = (float)Math.Sin(hudPulseTimer * 2f) * 0.3f + 0.7f;
 
 
                 UpdatePlayer(gameTime);
@@ -1106,6 +1128,119 @@ namespace GameStateManagement
 
 
         /// <summary>
+        /// Draws an improved HUD bar with background, foreground, and glow effects
+        /// </summary>
+        private void DrawHUDBar(SpriteBatch spriteBatch, string label, int currentValue, int maxValue, 
+            Vector2 position, Color backgroundColor, Color foregroundColor, Color glowColor, float pulseAmount)
+        {
+            // Calculate bar fill percentage
+            float percentage = MathHelper.Clamp((float)currentValue / maxValue, 0f, 1f);
+            int fillWidth = (int)(HUD_BAR_WIDTH * percentage);
+
+            // Measure label text
+            Vector2 labelSize = scoreFont.MeasureString(label);
+            
+            // Draw label box background (like Score/Lives) - reduced size
+            int labelBoxWidth = (int)(labelSize.X * 0.85f) + 12; // Reduced by ~20%
+            int labelBoxHeight = 18; // Reduced from 22
+            Vector2 labelPos = position;
+            
+            Rectangle labelGlowRect = new Rectangle((int)labelPos.X - 6, (int)labelPos.Y - 6, labelBoxWidth + 12, labelBoxHeight + 12);
+            Rectangle labelPanelRect = new Rectangle((int)labelPos.X - 4, (int)labelPos.Y - 4, labelBoxWidth + 8, labelBoxHeight + 8);
+            Rectangle labelBorderRect = new Rectangle((int)labelPos.X - 3, (int)labelPos.Y - 3, labelBoxWidth + 6, labelBoxHeight + 6);
+            Rectangle labelInnerRect = new Rectangle((int)labelPos.X - 2, (int)labelPos.Y - 2, labelBoxWidth + 4, labelBoxHeight + 4);
+            
+            spriteBatch.Draw(pixelTexture, labelGlowRect, foregroundColor * (0.2f + pulseAmount * 0.2f));
+            spriteBatch.Draw(pixelTexture, labelPanelRect, Color.Black * 0.7f);
+            spriteBatch.Draw(pixelTexture, labelBorderRect, foregroundColor * 0.6f);
+            spriteBatch.Draw(pixelTexture, labelInnerRect, Color.Black * 0.8f);
+            
+            // Draw label text - slightly smaller
+            Vector2 labelTextPos = new Vector2(labelPos.X + 5, labelPos.Y + labelBoxHeight / 2 - (labelSize.Y * 0.9f) / 2 + 1);
+            spriteBatch.DrawString(scoreFont, label, labelTextPos + new Vector2(1, 1), Color.Black * 0.8f, 0f, Vector2.Zero, 0.9f, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(scoreFont, label, labelTextPos, Color.White, 0f, Vector2.Zero, 0.9f, SpriteEffects.None, 0f);
+
+            // Bar position (below label with increased spacing)
+            Vector2 barPosition = new Vector2(position.X, position.Y + labelBoxHeight + 8);
+
+            // Draw bar background with border
+            Rectangle backgroundRect = new Rectangle((int)barPosition.X - 2, (int)barPosition.Y - 2, HUD_BAR_WIDTH + 4, HUD_BAR_HEIGHT + 4);
+            spriteBatch.Draw(pixelTexture, backgroundRect, Color.Black * 0.8f);
+            
+            Rectangle innerBackgroundRect = new Rectangle((int)barPosition.X, (int)barPosition.Y, HUD_BAR_WIDTH, HUD_BAR_HEIGHT);
+            spriteBatch.Draw(pixelTexture, innerBackgroundRect, backgroundColor * 0.3f);
+
+            // Draw the filled portion with pulsing glow effect
+            if (fillWidth > 0)
+            {
+                // Glow layer
+                Rectangle glowRect = new Rectangle((int)barPosition.X - 1, (int)barPosition.Y - 1, fillWidth + 2, HUD_BAR_HEIGHT + 2);
+                spriteBatch.Draw(pixelTexture, glowRect, glowColor * (0.3f + pulseAmount * 0.3f));
+
+                // Main fill
+                Rectangle fillRect = new Rectangle((int)barPosition.X, (int)barPosition.Y, fillWidth, HUD_BAR_HEIGHT);
+                Color finalColor = Color.Lerp(foregroundColor, glowColor, pulseAmount * 0.3f);
+                spriteBatch.Draw(pixelTexture, fillRect, finalColor);
+            }
+
+            // Draw value text on top of bar - better centered and smaller
+            string valueText = $"{currentValue}/{maxValue}";
+            Vector2 textSize = scoreFont.MeasureString(valueText);
+            float textScale = 0.85f; // 15% smaller text
+            Vector2 scaledTextSize = textSize * textScale;
+            Vector2 textPosition = new Vector2(barPosition.X + HUD_BAR_WIDTH / 2 - scaledTextSize.X / 2, 
+                                               barPosition.Y + HUD_BAR_HEIGHT / 2 - scaledTextSize.Y / 2 + 1);
+            
+            // Text with outline for readability
+            spriteBatch.DrawString(scoreFont, valueText, textPosition + new Vector2(1, 1), Color.Black, 0f, Vector2.Zero, textScale, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(scoreFont, valueText, textPosition + new Vector2(-1, -1), Color.Black, 0f, Vector2.Zero, textScale, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(scoreFont, valueText, textPosition + new Vector2(1, 0), Color.Black, 0f, Vector2.Zero, textScale, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(scoreFont, valueText, textPosition + new Vector2(0, 1), Color.Black, 0f, Vector2.Zero, textScale, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(scoreFont, valueText, textPosition, Color.White, 0f, Vector2.Zero, textScale, SpriteEffects.None, 0f);
+        }
+
+        /// <summary>
+        /// Draws an improved numeric display with icon-like appearance
+        /// </summary>
+        private void DrawHUDValue(SpriteBatch spriteBatch, string label, int value, Vector2 position, Color color, float glowIntensity)
+        {
+            // Measure the text to size the box appropriately
+            string labelText = label;
+            string valueText = value.ToString();
+            Vector2 labelSize = scoreFont.MeasureString(labelText);
+            Vector2 valueSize = scoreFont.MeasureString(valueText);
+            
+            int boxWidth = (int)(labelSize.X + valueSize.X + 20);
+            int boxHeight = 30;
+            
+            // Draw background panel with glow
+            Rectangle glowRect = new Rectangle((int)position.X - 7, (int)position.Y - 7, boxWidth + 14, boxHeight + 14);
+            Rectangle panelRect = new Rectangle((int)position.X - 5, (int)position.Y - 5, boxWidth + 10, boxHeight + 10);
+            
+            spriteBatch.Draw(pixelTexture, glowRect, color * (0.2f + glowIntensity * 0.3f));
+            spriteBatch.Draw(pixelTexture, panelRect, Color.Black * 0.7f);
+            
+            Rectangle borderRect = new Rectangle((int)position.X - 4, (int)position.Y - 4, boxWidth + 8, boxHeight + 8);
+            spriteBatch.Draw(pixelTexture, borderRect, color * 0.6f);
+            
+            Rectangle innerRect = new Rectangle((int)position.X - 3, (int)position.Y - 3, boxWidth + 6, boxHeight + 6);
+            spriteBatch.Draw(pixelTexture, innerRect, Color.Black * 0.8f);
+
+            // Draw label with shadow
+            Vector2 labelPos = new Vector2(position.X + 5, position.Y + boxHeight / 2 - labelSize.Y / 2 + 2);
+            spriteBatch.DrawString(scoreFont, labelText, labelPos + new Vector2(1, 1), Color.Black * 0.8f);
+            spriteBatch.DrawString(scoreFont, labelText, labelPos, color);
+
+            // Draw value with glow - positioned to the right
+            Vector2 valuePosition = new Vector2(position.X + boxWidth - valueSize.X, position.Y + boxHeight / 2 - valueSize.Y / 2 + 2);
+            
+            Color glowColor = Color.Lerp(color, Color.White, glowIntensity * 0.5f);
+            spriteBatch.DrawString(scoreFont, valueText, valuePosition + new Vector2(1, 1), glowColor * 0.5f);
+            spriteBatch.DrawString(scoreFont, valueText, valuePosition, glowColor);
+        }
+
+
+        /// <summary>
         /// Draws the gameplay screen.
         /// </summary>
         public override void Draw(GameTime gameTime)
@@ -1140,16 +1275,84 @@ namespace GameStateManagement
 
             newBackground.Draw(spriteBatch);
 
-           // spriteBatch.DrawString(scoreFont, "score: " + player.Score, new Vector2(ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y), Color.White);
+            // Draw improved HUD elements at the top of the screen
+            int hudY = HUD_TOP_MARGIN;
 
-            spriteBatch.DrawString(scoreFont, "score:" + player.Score, scorePosition, Color.White);
-            spriteBatch.DrawString(scoreFont, "Health: " + player.Health, new Vector2(ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + 35), Color.White);
+            // Draw Score (top-left, larger and prominent)
+            Vector2 scorePos = new Vector2(HUD_LEFT_MARGIN, hudY);
+            DrawHUDValue(spriteBatch, "SCORE", player.Score, scorePos, Color.Gold, livesGlowIntensity);
 
-            spriteBatch.DrawString(scoreFont, "Lives: " + iLivesLeft, new Vector2(ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + 70), Color.White);
+            // Draw Lives (top-right area)
+            Vector2 livesPos = new Vector2(ScreenManager.GraphicsDevice.Viewport.Width - 150, hudY);
+            Color livesColor = iLivesLeft > 1 ? Color.Cyan : Color.Red;
+            DrawHUDValue(spriteBatch, "LIVES", iLivesLeft, livesPos, livesColor, livesGlowIntensity);
 
-            spriteBatch.DrawString(scoreFont, "Shield: " + player.Shield, new Vector2(ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + 100), Color.White);
+            hudY += 50;
 
-            spriteBatch.DrawString(scoreFont, "Damage: + " + player.DamageMod, new Vector2(ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + 130), Color.White);
+            // Draw Health bar with green color scheme
+            Vector2 healthPos = new Vector2(HUD_LEFT_MARGIN, hudY);
+            Color healthBg = new Color(20, 40, 20);
+            Color healthFg = Color.LimeGreen;
+            Color healthGlow = Color.GreenYellow;
+            
+            // Pulsing red if health is low
+            if (player.Health < 30)
+            {
+                healthFg = Color.Red;
+                healthGlow = Color.OrangeRed;
+                healthBarPulse = (float)Math.Sin(hudPulseTimer * 5f) * 0.5f + 0.5f; // Faster pulse when critical
+            }
+            
+            DrawHUDBar(spriteBatch, "HEALTH", player.Health, 100, healthPos, healthBg, healthFg, healthGlow, healthBarPulse);
+
+            hudY += HUD_BAR_TOTAL_HEIGHT;
+
+            // Draw Shield bar with blue/cyan color scheme
+            Vector2 shieldPos = new Vector2(HUD_LEFT_MARGIN, hudY);
+            Color shieldBg = new Color(20, 20, 40);
+            Color shieldFg = Color.DeepSkyBlue;
+            Color shieldGlow = Color.Cyan;
+            
+            int maxShield = 100; // Assuming max shield is 100, adjust if needed
+            DrawHUDBar(spriteBatch, "SHIELD", player.Shield, maxShield, shieldPos, shieldBg, shieldFg, shieldGlow, shieldBarPulse);
+
+            hudY += HUD_BAR_TOTAL_HEIGHT;
+
+            // Draw Damage modifier with orange/yellow color scheme - smaller
+            Vector2 damagePos = new Vector2(HUD_LEFT_MARGIN, hudY);
+            Color damageColor = player.DamageMod > 0 ? Color.Orange : Color.Gray;
+            float damageGlow = player.DamageMod > 0 ? healthBarPulse : 0.3f;
+            
+            // Damage display panel (simpler display) - scaled down
+            string damageText = $"DAMAGE +{player.DamageMod}";
+            Vector2 damageTextSize = scoreFont.MeasureString(damageText);
+            float damageScale = 0.9f; // 10% smaller
+            Vector2 scaledDamageSize = damageTextSize * damageScale;
+            
+            int damagePanelWidth = (int)(scaledDamageSize.X) + 18;
+            int damagePanelHeight = 22; // Reduced from 28
+            
+            Rectangle damageGlowRect = new Rectangle((int)damagePos.X - 7, (int)damagePos.Y - 7, damagePanelWidth + 14, damagePanelHeight + 14);
+            Rectangle damagePanelRect = new Rectangle((int)damagePos.X - 5, (int)damagePos.Y - 5, damagePanelWidth + 10, damagePanelHeight + 10);
+            
+            spriteBatch.Draw(pixelTexture, damageGlowRect, damageColor * (0.2f + damageGlow * 0.3f));
+            spriteBatch.Draw(pixelTexture, damagePanelRect, Color.Black * 0.7f);
+            
+            Rectangle damageBorderRect = new Rectangle((int)damagePos.X - 4, (int)damagePos.Y - 4, damagePanelWidth + 8, damagePanelHeight + 8);
+            spriteBatch.Draw(pixelTexture, damageBorderRect, damageColor * 0.6f);
+            
+            Vector2 damageTextPos = new Vector2(damagePos.X + 5, damagePos.Y + damagePanelHeight / 2 - scaledDamageSize.Y / 2 + 2);
+            spriteBatch.DrawString(scoreFont, damageText, damageTextPos + new Vector2(1, 1), Color.Black, 0f, Vector2.Zero, damageScale, SpriteEffects.None, 0f);
+            spriteBatch.DrawString(scoreFont, damageText, damageTextPos, damageColor, 0f, Vector2.Zero, damageScale, SpriteEffects.None, 0f);
+
+            //spriteBatch.DrawString(scoreFont, "score:" + player.Score, scorePosition, Color.White);
+            //spriteBatch.DrawString(scoreFont, "Health: " + player.Health, new Vector2(ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + 35), Color.White);
+
+            //spriteBatch.DrawString(scoreFont, "Lives: " + iLivesLeft, new Vector2(ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + 70), Color.White);
+
+            //spriteBatch.DrawString(scoreFont, "Shield: " + player.Shield, new Vector2(ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + 100), Color.White);
+
+            //spriteBatch.DrawString(scoreFont, "Damage: + " + player.DamageMod, new Vector2(ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.X, ScreenManager.GraphicsDevice.Viewport.TitleSafeArea.Y + 130), Color.White);
             //draw asteroids
             foreach(AsteroidEnemy2 asteroid in asteroids2)
             {
