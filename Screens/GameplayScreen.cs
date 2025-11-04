@@ -172,7 +172,7 @@ namespace GameStateManagement
 
             iLivesLeft = 3;
 
-            gameFont = content.Load<SpriteFont>(@"Graphics\gamefont");
+            gameFont = content.Load<SpriteFont>(@"Graphics\gameFont");
 
             //load paralzxing background
             // bgLayer1.Initialize(content, @"Graphics\bgLayer1", ScreenManager.GraphicsDevice.Viewport.Width, -1);
@@ -185,7 +185,7 @@ namespace GameStateManagement
 
 
             //load enemies textures
-            fireHairTexture = content.Load<Texture2D>(@"graphics\FireHair");
+            fireHairTexture = content.Load<Texture2D>(@"Graphics\firehair");
             asteroidTexture2 = content.Load<Texture2D>(@"Graphics\asteroid01");
             //asteroidTexture = content.Load<Texture2D>(@"Graphics\asteroid01");
             enemyTexture = content.Load<Texture2D>(@"Graphics\mineAnimation");

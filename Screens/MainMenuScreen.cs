@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using SaturnsTurn5.Utility;
+using System;
 #endregion
 
 namespace GameStateManagement
@@ -127,7 +128,9 @@ namespace GameStateManagement
             if (otherScreenHasFocus.Equals(false))
             {
                 if (AudioManager.IsInitialized.Equals(true))
+                    {
                     AudioManager.PlaySound("titlemusic");
+            }
 
                // Song titleSong = content.Load<Song>(@"Sounds\titlemusic");
                // MediaPlayer.Play(titleSong);
